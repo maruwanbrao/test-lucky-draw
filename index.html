@@ -522,6 +522,103 @@
     100%{ transform:translate(var(--sx), var(--sy)) scale(0); opacity:0; }
   }
 
+  /* ---------- Win celebration: confetti + fireworks + popup ---------- */
+  .confetti-container{
+    position:fixed; inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:301;
+  }
+  .confetti-piece{
+    position:absolute;
+    top:-24px;
+    border-radius:2px;
+    opacity:0;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .confetti-piece{
+      opacity:0.95;
+      animation-name: confettiFall;
+      animation-timing-function: cubic-bezier(.35,0,.65,1);
+      animation-fill-mode: forwards;
+    }
+  }
+  @keyframes confettiFall{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    85%{ opacity:1; }
+    100%{ transform:translateY(112vh) rotate(var(--rot)); opacity:0; }
+  }
+
+  .firework-particle{
+    position:fixed;
+    width:7px; height:7px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:302;
+    box-shadow:0 0 10px 3px rgba(240,217,168,0.7);
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .firework-particle{ animation: sparkleOut 1s ease-out forwards; }
+  }
+
+  .win-celebration{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(10,8,20,0);
+    z-index:300;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .35s ease, background .35s ease;
+  }
+  .win-celebration.show{
+    opacity:1;
+    background:rgba(10,8,20,0.72);
+    pointer-events:auto;
+  }
+  .win-popup{
+    max-width:340px;
+    width:88%;
+    text-align:center;
+    padding:36px 26px 28px;
+    border-radius:24px;
+    background:linear-gradient(180deg, rgba(38,28,58,0.98), rgba(20,15,32,0.98));
+    border:1px solid rgba(217,178,106,0.55);
+    box-shadow:0 0 60px rgba(217,178,106,0.35), 0 20px 60px rgba(0,0,0,0.5);
+    transform:scale(0.6);
+    opacity:0;
+  }
+  .win-celebration.show .win-popup{
+    animation: winPopIn .55s cubic-bezier(.2,.9,.3,1.3) forwards;
+  }
+  @keyframes winPopIn{
+    0%{ transform:scale(0.6); opacity:0; }
+    60%{ transform:scale(1.06); opacity:1; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .win-icon{
+    font-size:3.4rem;
+    line-height:1;
+    margin-bottom:14px;
+    filter:drop-shadow(0 0 18px rgba(217,178,106,0.6));
+  }
+  .win-title{
+    font-family:'Noto Serif Myanmar', serif;
+    font-size:1.35rem;
+    font-weight:700;
+    color:var(--gold-soft);
+    margin-bottom:10px;
+  }
+  .win-msg{
+    font-size:0.92rem;
+    line-height:1.75;
+    color:var(--ink);
+    opacity:0.92;
+    margin-bottom:22px;
+  }
+  .win-continue-btn{
+    width:100%;
+  }
+
 
   .rating{
     display:inline-flex;
@@ -676,6 +773,17 @@
   </div>
 </div>
 
+<div class="confetti-container" id="confettiContainer"></div>
+
+<div class="win-celebration" id="winCelebration">
+  <div class="win-popup">
+    <div class="win-icon" id="winIcon">🎉</div>
+    <div class="win-title" id="winTitle">ဂုဏ်ယူပါတယ်!</div>
+    <div class="win-msg" id="winMsg"></div>
+    <button class="btn-primary win-continue-btn" id="winContinueBtn">ဆက်လုပ်ရန်</button>
+  </div>
+</div>
+
 <script>
   // ---------- Starfield generation ----------
   const starfield = document.getElementById('starfield');
@@ -706,7 +814,7 @@
   // ด้านล่างเป็น LIFF ID อันใหม่จากหน้า LINE Developers Console > LIFF ได้เลย
   const APP_CONFIG = {
     LIFF_ID: '2010728043-itItcEjc',
-    GAS_URL: 'https://script.google.com/macros/s/AKfycbzhIkaZTVR3KVHzNYOh9FZkv_qslgJFb5hNIHo8JjEHfE3wH5G6i6q5Z47ibU2PtqpPJA/exec'
+    GAS_URL: 'https://script.google.com/macros/s/AKfycbxA5-tmbghaa8_R09ODV4zpmweSbXin4QkIqh1gofO3JzXHI2qQ0mZdxPG8KVqlsZRxGQ/exec'
   };
 
   const liffStatusEl = document.getElementById('liffStatus');
@@ -893,6 +1001,95 @@
     }
   }
 
+  // ---------- Prize win celebration: confetti + fireworks + popup ----------
+  const CONFETTI_COLORS = ['#d9b26a','#f0d9a8','#9b7fd9','#e6a4b8','#8fd0b8','#ffd700','#ff8fa3'];
+
+  function spawnConfetti(count){
+    const container = document.getElementById('confettiContainer');
+    if(!container) return;
+    for(let i=0;i<count;i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = (Math.random()*100) + 'vw';
+      piece.style.background = CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)];
+      const w = 6 + Math.random()*6;
+      const h = 10 + Math.random()*8;
+      piece.style.width = w + 'px';
+      piece.style.height = h + 'px';
+      piece.style.setProperty('--rot', (Math.random()*720 - 360) + 'deg');
+      const duration = 2.6 + Math.random()*2.2;
+      piece.style.animationDuration = duration + 's';
+      piece.style.animationDelay = (Math.random()*0.7) + 's';
+      container.appendChild(piece);
+      setTimeout(()=> piece.remove(), (duration+1)*1000);
+    }
+  }
+
+  function spawnFireworkBurst(x, y){
+    const count = 26;
+    for(let i=0;i<count;i++){
+      const s = document.createElement('div');
+      s.className = 'firework-particle';
+      s.style.left = x + 'px';
+      s.style.top = y + 'px';
+      const angle = (Math.PI*2*i)/count + Math.random()*0.25;
+      const dist = 70 + Math.random()*110;
+      s.style.setProperty('--sx', Math.cos(angle)*dist + 'px');
+      s.style.setProperty('--sy', Math.sin(angle)*dist + 'px');
+      s.style.background = CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)];
+      s.style.boxShadow = '0 0 10px 3px ' + s.style.background;
+      s.style.animationDelay = (Math.random()*0.1) + 's';
+      document.body.appendChild(s);
+      setTimeout(()=> s.remove(), 1300);
+    }
+  }
+
+  function spawnFireworks(){
+    const bursts = 5;
+    for(let i=0;i<bursts;i++){
+      setTimeout(()=>{
+        const x = window.innerWidth * (0.18 + Math.random()*0.64);
+        const y = window.innerHeight * (0.14 + Math.random()*0.4);
+        spawnFireworkBurst(x, y);
+      }, i*280);
+    }
+  }
+
+  let fireworksInterval = null;
+
+  function showWinCelebration(prizeType){
+    const el = document.getElementById('winCelebration');
+    const icon = document.getElementById('winIcon');
+    const msg = document.getElementById('winMsg');
+    if(!el) return;
+    if(prizeType === 'cash'){
+      icon.textContent = '💰';
+      msg.textContent = 'ယနေ့အတွက် ငွေ ၁၀၀ဘတ် ဆုရရှိပါတယ်! ဆင်ပိတန် LINE OA မှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။';
+    } else {
+      icon.textContent = '🎁';
+      msg.textContent = 'ယနေ့အတွက် LINE စတစ်ကာ ဆုရရှိပါတယ်! ဆင်ပိတန် LINE OA မှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။';
+    }
+    el.classList.add('show');
+    spawnConfetti(90);
+    spawnFireworks();
+    fireworksInterval = setInterval(()=>{
+      spawnConfetti(30);
+      spawnFireworks();
+    }, 1800);
+  }
+
+  function hideWinCelebration(){
+    const el = document.getElementById('winCelebration');
+    if(el) el.classList.remove('show');
+    if(fireworksInterval){
+      clearInterval(fireworksInterval);
+      fireworksInterval = null;
+    }
+  }
+
+  const winContinueBtn = document.getElementById('winContinueBtn');
+  if(winContinueBtn) winContinueBtn.addEventListener('click', hideWinCelebration);
+
   // ---------- Modal control ----------
   const overlay = document.getElementById('overlay');
   const openBtn = document.getElementById('openBtn');
@@ -962,10 +1159,15 @@
       if(result) lastDrawResult = result;
     }
     renderPrizeResult(lastDrawResult);
+    if(lastDrawResult && lastDrawResult.ok && !lastDrawResult.alreadyPlayed &&
+       (lastDrawResult.prize === 'cash' || lastDrawResult.prize === 'sticker')){
+      showWinCelebration(lastDrawResult.prize);
+    }
   }
   function closeModal(){
     overlay.classList.remove('open');
     siamsiScene.classList.remove('shaking','popped');
+    hideWinCelebration();
   }
 
   function shakeThenOpen(){
