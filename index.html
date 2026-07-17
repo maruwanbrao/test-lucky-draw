@@ -279,13 +279,108 @@
     gap:10px;
     justify-content:center;
     align-items:center;
-    padding:10px 16px;
-    border-radius:999px;
+    padding:12px 18px;
+    border-radius:18px;
     border:1px solid var(--line);
     background:rgba(255,255,255,0.03);
     font-size:0.82rem;
     color:var(--ink-muted);
   }
+  .prize-widget-title{
+    flex-basis:100%;
+    font-size:0.76rem;
+    opacity:0.8;
+    margin-bottom:2px;
+  }
+
+  /* ---------- Branch selector combobox ---------- */
+  .branch-field{
+    width:100%;
+    max-width:360px;
+    margin:20px auto 6px;
+    text-align:left;
+  }
+  .branch-label{
+    display:block;
+    font-size:0.8rem;
+    color:var(--ink-muted);
+    margin-bottom:6px;
+  }
+  .combo-wrap{
+    position:relative;
+  }
+  .combo-input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.04);
+    color:var(--ink);
+    font-size:0.9rem;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .combo-input:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(217,178,106,0.18);
+  }
+  .combo-input::placeholder{
+    color:var(--ink-muted);
+    opacity:0.6;
+  }
+  .combo-list{
+    display:none;
+    position:absolute;
+    left:0; right:0; top:calc(100% + 6px);
+    max-height:240px;
+    overflow-y:auto;
+    background:linear-gradient(180deg, rgba(34,26,69,0.98), rgba(20,15,32,0.98));
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.45);
+    z-index:60;
+  }
+  .combo-list.open{ display:block; }
+  .combo-option{
+    padding:10px 14px;
+    font-size:0.85rem;
+    color:var(--ink);
+    cursor:pointer;
+    border-bottom:1px solid rgba(217,178,106,0.08);
+  }
+  .combo-option:last-child{ border-bottom:none; }
+  .combo-option:hover, .combo-option.active{
+    background:rgba(217,178,106,0.12);
+    color:var(--gold-soft);
+  }
+  .combo-option .opt-my{ display:block; }
+  .combo-option .opt-sub{
+    display:block;
+    font-size:0.74rem;
+    color:var(--ink-muted);
+    margin-top:2px;
+  }
+  .combo-empty{
+    padding:12px 14px;
+    font-size:0.8rem;
+    color:var(--ink-muted);
+    text-align:center;
+  }
+  .branch-hint{
+    min-height:16px;
+    font-size:0.74rem;
+    color:var(--rose);
+    margin-top:6px;
+    opacity:0;
+    transition:opacity .2s ease;
+  }
+  .branch-hint.show{ opacity:1; }
+  .branch-field.error .combo-input{
+    border-color:var(--rose);
+    box-shadow:0 0 0 3px rgba(230,164,184,0.18);
+  }
+
   .prize-widget .prize-chip{
     display:inline-flex;
     align-items:center;
@@ -762,6 +857,16 @@
     <h1>ဆင်ပိတန်ငွေကြေးကံဗေဒင်</h1>
     <p class="sub">စိတ်ကိုတည်ငြိမ်စွာထားပြီး ဟောစာတမ်းဘူးကိုလက်နဲ့တို့ထိလိုက်ပါ။ အလင်းရောင်ထွက်ပေါ်လာပြီးအဖြေဆီသို့ညွှန်ပြပါလိမ့်မည်။</p>
 
+    <div class="branch-field" id="branchField">
+      <label class="branch-label" for="branchInput">🏢 ရုံးခွဲရွေးပါ / เลือกสาขา / Select branch</label>
+      <div class="combo-wrap">
+        <input type="text" id="branchInput" class="combo-input" autocomplete="off"
+               placeholder="ရုံးခွဲအမည်ရိုက်ထည့်ပါ / พิมพ์ชื่อสาขา...">
+        <div class="combo-list" id="branchList"></div>
+      </div>
+      <div class="branch-hint" id="branchHint"></div>
+    </div>
+
     <div class="siamsi-scene" id="siamsiScene">
       <button class="siamsi-btn" id="openBtn" aria-label="ကံစမ်းတံများကို လှုပ်ရှားပြီး ကံဟောချက်ကို ဖွင့်ပါ">
         <div class="siamsi-photo" id="siamsiPhoto">
@@ -775,8 +880,9 @@
     <div class="hint"> </div>
 
     <div class="prize-widget" id="prizeWidget">
-      <span class="prize-chip">💰 ငွေ ၁၀၀ဘတ် <b id="cashRemainingLabel">--</b>/1</span>
-      <span class="prize-chip">🎁 LINE စတစ်ကာ <b id="stickerRemainingLabel">--</b>/3</span>
+      <span class="prize-widget-title">🎁 ယနေ့အတွက် ကျန်ရှိနေသေးသော ဆုအရေအတွက်</span>
+      <span class="prize-chip">💰 ငွေ ၁၀၀ဘတ် <b id="cashRemainingLabel">--</b>/1 ကျန်ရှိသည်</span>
+      <span class="prize-chip">🎁 LINE စတစ်ကာ <b id="stickerRemainingLabel">--</b>/3 ကျန်ရှိသည်</span>
     </div>
     <div class="liff-status" id="liffStatus"></div>
   </section>
@@ -854,7 +960,7 @@
   // ด้านล่างเป็น LIFF ID อันใหม่จากหน้า LINE Developers Console > LIFF ได้เลย
   const APP_CONFIG = {
     LIFF_ID: '2010728043-itItcEjc',
-    GAS_URL: 'https://script.google.com/macros/s/AKfycbxlODmMqX2WUEiJ3poGSXmCNHQj-4z7OEm0VpA09klyzRQ0jJxRdD0S9eBwef9mr_pB/exec',
+    GAS_URL: 'https://script.google.com/macros/s/AKfycbwDN_yTpJoCjba7eDclZhac2kON0v9gCqWvmo4PJH-eVlo6R0BvjM6q9PltWjCvt6eDMQ/exec',
     // (ทางเลือก) ใส่ลิงก์ LINE OA ของคุณ เพื่อโชว์ปุ่ม "เปิด LINE OA" บนหน้าจอบล็อกการเข้าถึงตรง
     LINE_OA_URL: 'https://lin.ee/Hn7Ng0J'
   };
@@ -945,7 +1051,8 @@
       action: 'draw',
       userId: liffProfile.userId,
       displayName: liffProfile.displayName || '',
-      idToken: idToken
+      idToken: idToken,
+      branch: selectedBranch ? selectedBranch.label : ''
     });
     if(result && result.ok){
       if(typeof result.cashRemaining === 'number'){
@@ -975,10 +1082,10 @@
       }
     } else if(result.prize === 'cash'){
       cls += ' win';
-      html = '<div class="prize-title">🎉 ဂုဏ်ယူပါတယ်!</div><div>ယနေ့အတွက် ငွေ ၁၀၀ဘတ် ဆုရရှိပါတယ်! ဆင်ပိတန် ဆင်ပိတန် ရုံးဝန်ထမ်းကို အကြောင်းကြားပြီး ဆုလက်ခံရယူပါ။ ဝန်ထမ်းမှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။</div>';
+      html = '<div class="prize-title">🎉 ယနေ့အတွက် ငွေ ၁၀၀ဘတ် ဆုရရှိပါတယ်! ဆင်ပိတန် ဆင်ပိတန် ရုံးဝန်ထမ်းကို အကြောင်းကြားပြီး ဆုလက်ခံရယူပါ။ ဝန်ထမ်းမှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။</div>';
     } else if(result.prize === 'sticker'){
       cls += ' win';
-      html = '<div class="prize-title">🎉 ဂုဏ်ယူပါတယ်!</div><div>ယနေ့အတွက် LINE စတစ်ကာ ဆုရရှိပါတယ်! ဆင်ပိတန် ဆင်ပိတန် ရုံးဝန်ထမ်းကို အကြောင်းကြားပြီး ဆုလက်ခံရယူပါ။ ဝန်ထမ်းမှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။</div>';
+      html = '<div class="prize-title">🎉 ယနေ့အတွက် LINE စတစ်ကာ ဆုရရှိပါတယ်! ဆင်ပိတန် ဆင်ပိတန် ရုံးဝန်ထမ်းကို အကြောင်းကြားပြီး ဆုလက်ခံရယူပါ။ ဝန်ထမ်းမှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။</div>';
     } else {
       cls += ' none';
       html = '<div>ဒီတစ်ခါ ဆုမရရှိသေးပါ။ ဒါပေမယ့် ဟောစာတမ်းကိုတော့ အခမဲ့ကြည့်ရှုနိုင်ပါတယ်!</div>';
@@ -1023,6 +1130,92 @@
     }
   }
   initLiff();
+
+  // ---------- Branch selector (searchable combobox: Burmese / English / Thai) ----------
+  const BRANCH_DATA = [
+    { my: 'ပထုံဌာနီ', en: 'Pathumthani', th: 'ปทุมธานี' },
+    { my: 'ဘန်ဘောရုံးခွဲ', en: 'Bang Bon', th: 'บางบอน' },
+    { my: 'လာ့ကဘန်ရုံးခွဲ', en: 'Lat Krabang', th: 'ลาดกระบัง' },
+    { my: 'လမ်လုကာ (ခေါင်းပဲ့) ယာယီဝန်ဆောင်မှုစင်တာ', en: 'Lam Luk Ka ( Khlong Piet ) Temporary Service Center', th: 'ศูนย์บริการชั่วคราวลำลูกกา (คลองเปียต)' },
+    { my: 'ဆမ်ခုတ်ယာယီဝန်ဆောင်မှုစင်တာ', en: 'Sam Khok Service Center', th: 'ศูนย์ให้บริการชั่วคราว สามโคก' },
+    { my: 'ချလောင်ကွန်း ၃၃ လမ်း', en: 'Soi Chalong Krung 33', th: 'ซอยฉลองกรุง 33' },
+    { my: 'ဘန်းကပိ ( ဖန်ထစ်ပ် ပလာဇာ )', en: 'Bangkapi (Pantip Plaza)', th: 'บางกะปิ' },
+    { my: 'စမွတ်စာခွန် (မဟာချိုင်)', en: 'Samut Sakhon (Mahachai)', th: 'สมุทรสาคร (มหาชัย)' },
+    { my: 'စမွတ်ဆာခွန် (ခုတ်ခမ်)', en: 'Samut Sakhon (Khok Kham)', th: 'สมุทรสาคร (โคกขาม)' },
+    { my: 'စမွတ်ပရာကန်', en: 'Samut Prakarn Branch', th: 'สาขาสมุทรปราการ' },
+    { my: 'ဘန်ဆောင်ထော်ချေးငွေဝန်ဆောင်မှုစင်တာ', en: 'Bangsaotong Service center', th: 'ศูนย์บริการบางเสาธง' },
+    { my: 'စမွတ်စာခွန် (Big C မဟာချိုင်)', en: 'Samut Sakhon (Big C Mahachai)', th: 'สมุทรสาคร (บิ๊กซี มหาชัย)' },
+    { my: 'ဆင်ပီတန် ချွန်ဘူရီရုံးခွဲ', en: 'Synpitarn Chonburi (Bowin) - SPCB', th: 'สินพิธานชลบุรี (บ่อวิน)' },
+    { my: 'ပါဝတ်ရုံးခွဲ', en: 'Prawet (Service Center)', th: 'ศูนย์บริการประเวศ' }
+  ];
+
+  const thCollator = (typeof Intl !== 'undefined' && Intl.Collator) ? new Intl.Collator('th') : null;
+  const BRANCHES = BRANCH_DATA
+    .map(b => ({ ...b, label: `${b.my} | ${b.en} | ${b.th}` }))
+    .sort((a, b) => thCollator ? thCollator.compare(a.th, b.th) : a.th.localeCompare(b.th));
+
+  let selectedBranch = null;
+
+  const branchField = document.getElementById('branchField');
+  const branchInput = document.getElementById('branchInput');
+  const branchListEl = document.getElementById('branchList');
+  const branchHintEl = document.getElementById('branchHint');
+
+  function renderBranchOptions(query){
+    const q = (query || '').trim().toLowerCase();
+    const matches = !q ? BRANCHES : BRANCHES.filter(b =>
+      b.my.toLowerCase().includes(q) || b.en.toLowerCase().includes(q) || b.th.toLowerCase().includes(q)
+    );
+    branchListEl.innerHTML = '';
+    if(matches.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'combo-empty';
+      empty.textContent = 'ရုံးခွဲမတွေ့ပါ / ไม่พบสาขา';
+      branchListEl.appendChild(empty);
+      return;
+    }
+    matches.forEach(b => {
+      const opt = document.createElement('div');
+      opt.className = 'combo-option';
+      opt.innerHTML = `<span class="opt-my">${b.my}</span><span class="opt-sub">${b.en} · ${b.th}</span>`;
+      opt.addEventListener('click', () => {
+        selectedBranch = b;
+        branchInput.value = b.label;
+        closeBranchList();
+        branchField.classList.remove('error');
+        branchHintEl.classList.remove('show');
+      });
+      branchListEl.appendChild(opt);
+    });
+  }
+
+  function openBranchList(){
+    renderBranchOptions(branchInput.value === (selectedBranch && selectedBranch.label) ? '' : branchInput.value);
+    branchListEl.classList.add('open');
+  }
+  function closeBranchList(){
+    branchListEl.classList.remove('open');
+  }
+
+  if(branchInput){
+    branchInput.addEventListener('focus', openBranchList);
+    branchInput.addEventListener('input', () => {
+      selectedBranch = null;
+      openBranchList();
+    });
+    document.addEventListener('click', (e) => {
+      if(branchField && !branchField.contains(e.target)) closeBranchList();
+    });
+  }
+
+  function highlightBranchRequired(){
+    if(!branchField) return;
+    branchField.classList.add('error');
+    branchHintEl.textContent = 'ကျေးဇူးပြု၍ ရုံးခွဲရွေးပါ / กรุณาเลือกสาขาก่อนเริ่มเล่น';
+    branchHintEl.classList.add('show');
+    branchField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    branchInput.focus();
+  }
 
   // ---------- Fortune data (28 numbered fortune-stick readings) ----------
   const FORTUNES = [{"tier": "Golden Prosperity (Great Fortune)", "number": 1, "content": "အတွေးအမြင်အသစ် အကြံဉာဏ်ကောင်းတွေပေါ်ထွက်နေတဲ့ကာလပါ။ ငွေကြေးလမ်းကြောင်းအသစ်တွေရှိလာနိုင်ပါတယ်။ \n\nသတိပေးချက် - ကိုယ့်မှာရှိတဲ့ငွေကြေးတွေကိုစနစ်တကျသေချာစီမံခန့်ခွဲသင့်ပါတယ်။ ဥပမာ - လစာထဲမှ ၅ပုံ၁ပုံကို စုငွေအဖြစ်ဖယ်ပြီးလစဥ်စုဆောင်းပါ။"}, {"tier": "Steady Growth (Good Fortune)", "number": 2, "content": "လက်ရှိလုပ်နေတဲ့ကြိုးစားမှုအတိုင်းဆက်ပြီးကြိုးစားပါ။မကြာခင်ငွေကြေးကံတွေပို‌ကောင်းလာဖို့ရှိပါတယ်။\n\nသတိပေးချက် - ချေးငွေထပ်မံလိုအပ်ရင်အလွယ်တကူလျှောက်ထားနိုင်ဖို့ လစဥ်သတ်မှတ်ရက်အတိုင်းချေးငွေမှန်မှန်ပြန်ဆပ်ထားဖို့အရေးကြီးပါတယ်။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 3, "content": "ငွေကြေးကံတည်ငြိမ်မှုရှိပါတယ်။ လက်ရှိလုပ်နေတဲ့အတိုင်းဆက်သွားပါ။ မလိုအပ်တဲ့စွန့်စားမှု ရင်းနှီးမြုပ်နှံမှုတွေမလုပ်ပါနဲ့ဦး။\n\nသတိပေးချက် - လက်ရှိချေးငွေယူထားတာမျိုးတွေရှိရင် ချေးငွေပြန်ဆပ်ဖို့ကိုအရင်ဦးစားပေးပြီးမှ တခြားကိုယ်လုပ်ချင်တဲ့ငွေကြေးသုံးစွဲမှုတွေကိုလုပ်သင့်ပါတယ်။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 4, "content": "လှည့်ဖြားတတ်တဲ့သူတွေနဲ့တွေ့နိုင်ချေရှိတဲ့ကာလပါ။ ပိုက်ဆံအဆင်ပြေချင်စိတ်နဲ့မက်လုံးတွေနောက်မလိုက်မိဖို့သတိထားပါ။\n\nသတိပေးချက် - ဆင်ပိတန်လိုမျိုး တရားဝင်ငွေချေးလုပ်ငန်းတွေဟာ ချေးငွေမထုတ်ပေးခင် ကြိုတင်ငွေလွှဲခိုင်းခြင်း မရှိပါဘူး။ အကယ်၍ ငွေအရင်တောင်းလာပြီဆိုရင် ဒါဟာ ၁၀၀% လိမ်လည်မှုဖြစ်ပါတယ်။"}, {"tier": "Steady Growth (Good Fortune)", "number": 5, "content": "သင့်ရဲ့စေ့စပ်သေချာတတ်မှု၊ အမျှော်အမြင်ရှိမှုတို့ကြောင့် ငွေကြေးကံတွေတဖြေးဖြေးပိုကောင်းလာမယ့်ကာလပါ။\n\nသတိပေးချက် - လစဥ်အသုံးစရိတ်တွေကိုသေချာစစ်ဆေးပြီး မလိုအပ်ပဲအပိုသုံးမိနေတာတွေကိုလျှော့ချဖို့ကြိုးစားပါ။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 6, "content": "စိတ်ရှည်သည်းခံနိုင်တဲ့သူက အခွင့်ရေးကောင်းတွေကိုပိုရတတ်တာဖြစ်လို့ လက်ရှိအခြေအနေအတိုင်းဆက်ပြီးကြိုးစားရင် ငွေကြေးကံတွေ အခွင့်အလမ်းတွေဟာ မကြာခင်မှာကိုယ့်အတွက်ဖြစ်လာမှာပါ။\n\nသတိပေးချက် - အပိုကုန်တာမျိုးတွေမဖြစ်ရအောင် တခုခုကိုဝယ်တော့မယ်ဆိုပြီး တရက်လောက်သေချာစဥ်းစားဆုံးဖြတ်ပြီးမှ ဝယ်သင့် မဝယ်သင့်ဆုံးဖြတ်တာပိုကောင်းပါတယ်။"}, {"tier": "Steady Growth (Good Fortune)", "number": 7, "content": "ငွေကြေးအခက်အခဲတွေ၊ အကြွေးတင်နေတာတွေမကြာခင်ပြေလည်သွားဖို့ရှိပါတယ်။\n\nသတိပေးချက် - အပိုဝင်ငွေရရှိလာတဲ့အခါ တဝက်ကိုစု တဝက်ကိုအသုံးစရိတ်အဖြစ်ခွဲခြမ်းသုံးစွဲပါ။"}, {"tier": "Golden Prosperity (Great Fortune)", "number": 8, "content": "ငွေကြေးကံအလွန်ကောင်းနေတဲ့ကာလပါ။ လုပ်ငန်းအသစ်တွေလုပ်ရဖို့ရှိနိုင်ပါတယ်။\n\nသတိပေးချက် - လူတိုင်းကိုအရမ်းအယုံမလွယ်ဖို့ဂရုစိုက်ပါ။ ပိုက်ဆံလွှဲခါနီးတိုင်း အချက်အလက်မှန်မမှန်ကိုသေချာစစ်ဆေးပြီးမှငွေလွှဲပါ။"}, {"tier": "Golden Prosperity (Great Fortune)", "number": 9, "content": "ကံကောင်းနေတာကြောင့် အလုပ်တွေပိုအဆင်ပြေလာနိုင်ပါတယ်။\n\nသတိပေးချက် - ပိုမိုများပြားတဲ့ချေးငွေကိုထပ်ချေးနိုင်ဖို့ ချေးငွေပြန်ဆပ်ရမယ့်နေ့ကိုသေချာမှတ်သားပြီးပြန်ဆပ်ခြင်းဖြင့်ချေးငွေမှတ်တမ်း‌ကောင်းကိုတည်ဆောက်နိုင်ပါတယ်။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 10, "content": "ငွေကြေးကံတည်ငြိမ်နေပါတယ်။ အရေးကြီးဆုံးဖြတ်စရာတွေရှိရင်ခေါင်းအေးအေးထားပြီး ဆုံးဖြတ်ချက်တွေချရမယ့်ကာလဖြစ်ပါတယ်။\n\nသတိပေးချက် - ကိုယ်မသိတဲ့သူတွေ ဒါမှမဟုတ် သံသယဖြစ်စရာ အွန်လိုင်းမှပေးပို့လာတဲ့လင့်တွေကိုဝင်မကြည့်ပါနဲ့။ ကိုယ့်ရဲ့ကိုယ်ရေးအချက်အလက်တွေကိုအလွယ်တကူတခြားသူကိုမပေးဖို့သတိထားပါ။"}, {"tier": "Steady Growth (Good Fortune)", "number": 11, "content": "ကံတရားကကိုယ့်ဘက်မှာရှိနေတဲ့အနေအထားပါ။ လုပ်ငန်းအသစ်တွေစတင်လုပ်ကိုင်ဖို့အချိန်ကောင်းဖြစ်ပါတယ်။\n\nသတိပေးချက် - ကိုယ့်ကိုအတင်းတွန်းအားပေးပြီး ချက်ချင်းငွေလွှဲခိုင်းတာမျိုး၊ စာချုပ်ချုပ်ခိုင်းတာမျိုးတွေလုပ်ခိုင်းပြီဆို လူလိမ်တွေဖြစ်နိုင်ချေများတာကြောင့် ၂ခါပြန်စဥ်းစားပြီးမှဆုံးဖြတ်ပါ။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 12, "content": "ငွေကြေးကြပ်တည်းနေတဲ့အချိန်ဖြစ်လို့ ကံကောင်းလာမယ့်နေ့ရက်တွေကိုစိတ်ရှည်ရှည်နဲ့ခေတ္တစောင့်ဆိုင်းရမယ့်ကာလဖြစ်နိုင်ပါတယ်။\n\nသတိပေးချက် - ဆင်ပိတန်ကိုဆပ်စရာရှိတဲ့အကြွေးတွေကိုမပျက်မကွက်မှန်မှန်ဆပ်ပြီးယုံကြည်မှုတည်ဆောက်ထားရင် နောက်တခါအရေးပေါ်ချေးငွေလိုအပ်တဲ့အခါအလွယ်တကူချေးငွေရနိုင်တဲ့အခွင့်အလမ်းရနိုင်ပါတယ်။"}, {"tier": "Steady Growth (Good Fortune)", "number": 13, "content": "အောင်မြင်မှုဆိုတာတနေ့တရက်ထဲရလာတဲ့အရာမျိုးမဟုတ်ပါဘူး။နေ့စဥ်တည်ဆောက်ရတာမျိုးပါ။ ကိုယ့်ရဲ့မဆုတ်မနစ်ကြိုးစားမှုတွေကြောင့်ကံကောင်းလာတော့မယ့်ကာလပါ။\n\nသတိပေးချက် - နေ့စဥ်အသုံးစရိတ်စာရင်းဇယားကိုသေချာလုပ်ထားပြီး လကုန်တဲ့အခါမလိုအပ်တဲ့ငွေထွက်ပေါက်တွေကို သေချာပြန်လည်စစ်ဆေးပြီးပြုပြင်နိုင်ပါတယ်။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 14, "content": "ကိုယ့်ရဲ့ငွေအဝင်အထွက်စာရင်းတွေကိုသေသေချာချာကြည့်ရှုသုံးစွဲနေဖို့လိုအပ်တဲ့ကာလပါ။\n\nသတိပေးချက် - အတိုးပေါ်အတိုးဆင့်မဖြစ်စေဖို့ အတိုးများတဲ့ချေးငွေတွေကိုမြန်မြန်ကျေအောင်ဆပ်ပြီး တခြားချေးငွေတွေကိုလဲမပျက်မကွက်ပြန်ဆပ်နိုင်ဖို့ ပြက္ခဒိန်၊ မှတ်စုစာအုပ်တို့မှာသေချာရေးမှတ်ပြီး စနစ်တကျပြင်ဆင်ထားသင့်ပါတယ်။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 15, "content": "ငွေကုန်ကြေးကျများနေတတ်တဲ့ကာလပါ။ဝင်ငွေထွက်ငွေကိုချိန်ပြီးသုံးစွဲသင့်ပါတယ်။\n\nသတိပေးချက် - အရေးပေါ်ငွေလိုတိုင်းအတိုးကြီးကြီးနဲ့ငွေတိုးချေးနေတဲ့သူတွေဆီကချေးငွေတွေခဏခဏယူပြီးဖြေရှင်းတာထက် ဆင်ပိတန်လိုတရားဝင်ကုမ္ပဏီမှာအတိုးနှုန်းနဲနဲနဲ့ချေးငွေယူပြီးဖြေရှင်းတာဟာပိုထိရောက်တဲ့နည်းလမ်းပါ။"}, {"tier": "Steady Growth (Good Fortune)", "number": 16, "content": "သင့်ရဲ့ကတိတည်ပြီး မဆုတ်မနစ်ကြိုးစားတတ်တဲ့အကျင့်ကြောင့် ငွေကြေးကံကောင်းမယ့်အခွင့်အလမ်းသစ်တွေပိုတိုးလာဖို့ရှိပါတယ်။\n\nသတိပေးချက် - ကိုယ့်ရဲ့အရေးကြီးတဲ့ဘဏ်အကောင့်၊ ဆိုရှယ်မီဒီယာတွေကိုအသုံးပြုတဲ့အခါမှာ လှို့ဝှက်နံပါတ်ကိုခန့်မှန်းရလွယ်ကူတဲ့ မှတ်ပုံတင်နံပါတ်၊ ပတ်စပို့နံပါတ်၊ ပန်းရောင်ကတ်၊မွေးနေ့ စသည်တို့ကိုအသုံးပြုခြင်းမှရှောင်ကြဥ်ပြီး လူလိမ်များရန်မှကာကွယ်ပါ။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 17, "content": "ငွေကြေးကံတည်ငြိမ်နေတာကြောင့် စိတ်အေးအေးထားပြီးကြိုးစားရင်ပိုကောင်းတဲ့ငွေကြေးကံတွေရောက်လာနိုင်တဲ့ကာလပါ။\n\nသတိပေးချက် - သင့်ရဲ့ ဘဏ်ကတ်နံပါတ်၊ ဆိုရှယ်မီဒီယာ နဲ့ ငွေကြေးနဲ့ဆိုင်တဲ့အက်ပလီကေးရှင်းတွေရဲ့  လျှို့ဝှက်နံပါတ်တွေကို ပွဲစား၊ အလုပ်ရှင်၊ မိဘ၊ သူငယ်ချင်း ဘယ်သူကိုမှ မပေးပါနဲ့။"}, {"tier": "Golden Prosperity (Great Fortune)", "number": 18, "content": "ကိုယ့်ရဲ့စနစ်တကျကြိုးစားမှုကြောင့်ရလာတဲ့အသီးအပွင့်တွေကိုစတင်ခံစားရတော့မယ့်ကာလပါ။ \n\nသတိပေးချက် - လစဥ်ပိုက်ဆံကိုစီမံခန့်ခွဲတဲ့အခါ အိမ်အသုံးစရိတ်၊ ကျန်းမာရေးစရိတ်၊ မိသားစုထောက်ပံ့ငွေ၊ စုငွေ စသဖြင့် စနစ်တကျခွဲခြားပြီးသုံးစွဲပါ။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 19, "content": "ကြုံတွေ့နေတဲ့ငွေကြေးအခက်အခဲတွေမကြာခင်ပြေလည်နိုင်တဲ့ကာလပါ။\n\nသတိပေးချက် - အတိုးကြီးကြီးနဲ့ငွေတိုးချေးနေတဲ့သူတွေကိုသတိထားပါ။ မတန်တဆပေးရတဲ့အတိုးတွေကြောင့်အတိုးပေါ်အတိုးဆင့်ပြီးပိုဒုက္ခရောက်နိုင်ပါတယ်။ အတိုးနှုန်းသက်သာစွာနဲ့ချေးငွေယူဖို့ဆင်ပိတန်ကိုအမြဲသတိရလိုက်ပါ။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 20, "content": "အကျိုးမရှိတဲ့နေရာတွေမှာမဖြုန်းပဲ သေချာတဲ့တရားဝင်ဘဏ်တွေမှာငွေစုရင်း ငွေကြေးကံပိုကောင်းအောင်မြှင့်တင်လိုက်ပါ။\n\nသတိပေးချက် - အွန်လိုင်းမှာတွေ့ရတဲ့ \"ငွေအမြန်တိုးပွားနည်း၊ဂိမ်းဆော့ပြီး ငွေရှာနည်း\" ဆိုတာတွေကို မယုံပါနဲ့။ ဒါတွေဟာမက်လုံးပေးပြီးကိုယ့်အိတ်ထဲကပိုက်ဆံတွေကိုနှိုက်ယူနေတဲ့အရာတွေပါ။"}, {"tier": "Steady Growth (Good Fortune)", "number": 21, "content": "သင့်ရဲ့ကြံ့ကြံ့ခံကြိုးစားပြီးလျှောက်လှမ်းခဲ့တဲ့နေ့ရက်တွေကြောင့် ကံကောင်းခြင်းနေ့ရက်တွေနဲ့ကြုံဖို့မဝေးတော့ပါဘူး။ \n\nသတိပေးချက် - ပိုမိုခိုင်မာတဲ့ပိုက်ဆံစုနည်းကိုတည်ဆောက်ဖို့ လစဥ်ကိုယ့်ရဲ့ဝင်ငွေရဲ့ ၅၀% ကိုအသုံးစရိတ်၊ ၃၀ % ကိုလိုချင်တာသုံးဖို့နဲ့ ၂၀ % ကိုနောင်ရေးအတွက်စုဆောင်းထားတာမျိုးဆိုပြီး စနစ်တကျသုံးစွဲသင့်ပါတယ်။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 22, "content": "နည်းလမ်းအသစ်တွေအသုံးပြုပြီးကိုယ့်ရဲ့ငွေကြေးကံကိုမြှင့်တင်ဖို့အချိန်ရောက်နေတဲ့ကာလပါ။\n\nသတိပေးချက် - အခန့်မသင့်လို့ အရေးပေါ်သုံးစရာပေါ်လာတာမျိုး၊ OT မဆင်းရတော့တာတွေကြောင့် ငွေပိုသုံးလိုက်ရပြီး ချေးငွေဆပ်ဖို့အခက်အခဲဖြစ်လာတဲ့အခါ ဆင်ပိတန်ကိုဆက်သွယ်ပြီးတိုင်ပင်ဖြေရှင်းတာမျိုးလုပ်နိုင်ပါတယ်။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 23, "content": "အတိတ်ကဆုံးဖြတ်ချက်အမှားတွေကနေသင်ခန်းစာယူပြီး တဖြည်းဖြည်းသေချာကြိုးစားရင်း ကိုယ့်ရဲ့ငွေကြေးကံကိုမြှင့်တင်နိုင်တဲ့အချိန်ပါ။\n\nသတိပေးချက် - အရင်က ပွဲစားလိမ်တာ ခံရဖူးရင်ဖြစ်ဖြစ်၊ အပြင်အတိုးကြီးတဲ့ဆီမှာ ငွေချေးမိခဲ့ရင်ဖြစ်ဖြစ် အားမငယ်ပါနဲ့။ ဆင်ပိတန်လိုတရားဝင်ပြီးချေးငွေကုမ္ပဏီမှာချေးငွေမှတ်တမ်းကောင်းကိုတည်ဆောက်ရင်း မှန်ကန်တဲ့လမ်းကြောင်းပေါ်ကိုပြန်တက်လိုက်ပါ။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 24, "content": "ကိုယ့်ရဲ့ကတိတည်မှု စာရိတ္တကောင်းမွန်မှုတို့ကြောင့် ကူညီပေးမယ့်သူတွေအထောက်အပံ့ကောင်းတွေရလာမယ့်အချိန်ပါ။\n\nသတိပေးချက် - အလုပ်အကိုင် အပြောင်းအလဲကြောင့်ဖြစ်စေ၊ ကျန်းမာရေးကြောင့်ဖြစ်စေ အကြွေးဆပ်ဖို့ အခက်အခဲရှိလာရင်ထွက်မပြေးပဲ ဆင်ပိတန်မှာလာရောက်တိုင်ပင်ပြီး အကူအညီတောင်းပါ။  အကြွေးဟောင်းကိုဆပ်ဖို့ အတိုးကြီးတဲ့ချေးငွေတွေကိုထပ်ယူတာဟာပိုပြီးငွေကြေးကြပ်တည်းလာနိုင်ပါတယ်။"}, {"tier": "Steady Growth (Good Fortune)", "number": 25, "content": "ဒီလရဲ့ငွေကြေးကံကတော့ ဘယ်အရာကိုမဆိုဟန်ချက်ညီညီသုံးစွဲတတ်တဲ့သင့်အတွက် ကံကောင်းခြင်းတွေယူဆောင်လာမယ့်လပါ။\n\nသတိပေးချက် - တလတခါ မိသားစုအချင်းချင်းစုပေါင်းတိုင်ပင်ပြီး အသုံးအစွဲစာရင်းတွေကိုသေချာပြန်လည်ကြည့်ရှုစစ်ဆေးပြီး ငွေကိုစီမံခန့်ခွဲသင့်ပါတယ်။"}, {"tier": "Caution & Mindful Action (Small Fortune / Advice)", "number": 26, "content": "ကိုယ်ပင်ပန်းထားသမျှ ကြိုးစားထားသမျှအရာထင်တော့မယ့်အချိန်ဖြစ်လို့ စိတ်ရှည်ရှည်နဲ့ဆက်ကြိုးစားထားရမယ့်အချိန်ပါ။\n\nသတိပေးချက် - ဆိုရှယ်မီဒီယာပေါ်မှာကိုယ့်ရဲ့ ပတ်စပို့၊ ပန်းရောင်ကတ်၊ CI စာအုပ်၊ ငွေလွှဲပြေစာ ဓာတ်ပုံတွေကို ဘယ်တော့မှ မတင်ပါနဲ့။ မသမာသူတွေက သင့်အချက်အလက်ကို အသုံးပြုပြီး လိမ်လည်နိုင်ပါတယ်။"}, {"tier": "Stability & Strategy (Neutral / Fair Fortune)", "number": 27, "content": "ငွေကြေးအခက်အခဲတွေကိုဖြေရှင်းဖို့အကူအညီကောင်းတွေရလာတတ်ပါတယ်။\n\nသတိပေးချက် - ရုတ်တရက်အလုပ်ပြုတ်သွားတာ၊ အရေးပေါ်ငွေသုံးလိုက်ရတာတွေကြောင့်ချေးငွေပြန်ဆပ်ဖို့အခက်အခဲတွေရှိလာတော့မယ်ဆို ဆင်ပိတန်ဝန်ထမ်းတွေနဲ့တိုင်ပင်လို့ရပါတယ်။"}, {"tier": "Golden Prosperity (Great Fortune)", "number": 28, "content": "ငွေကြေးကံကောင်းနေတာကြောင့် ဘက်ပေါင်းစုံကနေငွေကြေးတွေဝင်လာဖို့ရှိပါတယ်။\n\nသတိပေးချက် - အွန်လိုင်းမှမက်လုံးပေးဆက်သွယ်လာတဲ့သူတွေက လူလိမ်တွေဖြစ်ဖို့များတာကြောင့်\nအယုံမလွယ်မိဖို့အရေးကြီးပါတယ်။"}];
@@ -1146,10 +1339,10 @@
     if(!el) return;
     if(prizeType === 'cash'){
       icon.textContent = '💰';
-      msg.textContent = 'ယနေ့အတွက် ငွေ ၁၀၀ဘတ် ဆုရရှိပါတယ်! ဆင်ပိတန် ဆင်ပိတန် ရုံးဝန်ထမ်းကို အကြောင်းကြားပြီး ဆုလက်ခံရယူပါ။ ဝန်ထမ်းမှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။';
+      msg.textContent = 'ယနေ့အတွက် ငွေ ၁၀၀ဘတ် ဆုရရှိပါတယ်! ဆင်ပိတန် LINE OA မှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။';
     } else {
       icon.textContent = '🎁';
-      msg.textContent = 'ယနေ့အတွက် LINE စတစ်ကာ ဆုရရှိပါတယ်! ဆင်ပိတန် ဆင်ပိတန် ရုံးဝန်ထမ်းကို အကြောင်းကြားပြီး ဆုလက်ခံရယူပါ။ ဝန်ထမ်းမှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။';
+      msg.textContent = 'ယနေ့အတွက် LINE စတစ်ကာ ဆုရရှိပါတယ်! ဆင်ပိတန် LINE OA မှတဆင့် ဆက်သွယ်ပြီး ဆုလက်ခံရယူနိုင်ပါတယ်။';
     }
     el.classList.add('show');
     spawnConfetti(90);
@@ -1254,6 +1447,15 @@
 
   function shakeThenOpen(){
     if(isShaking) return;
+    // Branch is only required before the user's one-time prize draw is
+    // fired; once lastDrawResult exists (or the prize system isn't
+    // configured), branch has no further bearing and viewing fortunes is
+    // never blocked by it.
+    const needsBranch = !lastDrawResult && gasConfigured() && liffProfile && !selectedBranch;
+    if(needsBranch){
+      highlightBranchRequired();
+      return;
+    }
     isShaking = true;
     chooseWinnerStick();
     // Kick off the one-time prize draw in parallel with the shake animation.
