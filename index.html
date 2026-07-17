@@ -619,6 +619,37 @@
     width:100%;
   }
 
+  /* ---------- LIFF-only access guard ---------- */
+  .access-blocked{
+    position:fixed; inset:0;
+    z-index:500;
+    display:none;
+    align-items:center; justify-content:center;
+    padding:24px;
+    text-align:center;
+    background:radial-gradient(ellipse at 50% 30%, var(--mid), var(--deep) 60%, var(--void) 100%);
+  }
+  .access-blocked.show{ display:flex; }
+  .access-blocked-box{ max-width:360px; }
+  .access-blocked-icon{ font-size:3rem; margin-bottom:16px; }
+  .access-blocked-title{
+    font-family:'Noto Serif Myanmar', serif;
+    font-size:1.3rem;
+    font-weight:700;
+    color:var(--gold-soft);
+    margin-bottom:14px;
+  }
+  .access-blocked-msg{
+    font-size:0.92rem;
+    line-height:1.85;
+    color:var(--ink-muted);
+    margin-bottom:24px;
+  }
+  .access-blocked-btn{
+    display:inline-block;
+    text-decoration:none;
+  }
+
 
   .rating{
     display:inline-flex;
@@ -784,6 +815,15 @@
   </div>
 </div>
 
+<div class="access-blocked" id="accessBlocked">
+  <div class="access-blocked-box">
+    <div class="access-blocked-icon">🔒</div>
+    <div class="access-blocked-title">LINE မှတဆင့်သာ ဝင်ရောက်နိုင်ပါသည်</div>
+    <div class="access-blocked-msg">ဆင်ပိတန် ကံဗေဒင်ကို LINE Official Account ရဲ့ Rich Menu (သို့) link မှတဆင့်သာ ဖွင့်ပေးပါ။ Browser မှ တိုက်ရိုက်ဖွင့်ခြင်းကို ခွင့်မပြုပါ။</div>
+    <a class="btn-primary access-blocked-btn" id="accessBlockedOaLink" href="#" target="_blank" rel="noopener" style="display:none;">LINE OA ကိုဖွင့်ရန်</a>
+  </div>
+</div>
+
 <script>
   // ---------- Starfield generation ----------
   const starfield = document.getElementById('starfield');
@@ -814,7 +854,9 @@
   // ด้านล่างเป็น LIFF ID อันใหม่จากหน้า LINE Developers Console > LIFF ได้เลย
   const APP_CONFIG = {
     LIFF_ID: '2010728043-itItcEjc',
-    GAS_URL: 'https://script.google.com/macros/s/AKfycbx_vGyBdrTX6JtMM1PRsicjjS0TJEj-anPCWL3iIu_aAzBiu1yotwDPqY16NbgR3aXtjg/exec'
+    GAS_URL: 'https://script.google.com/macros/s/AKfycbxZqnLarppYgTTIwLPjGqTeWi5fMWUZox2MjtBv-fZB8lJiUYHe1l7F3YhUXoib-8vviw/exec',
+    // (ทางเลือก) ใส่ลิงก์ LINE OA ของคุณ เพื่อโชว์ปุ่ม "เปิด LINE OA" บนหน้าจอบล็อกการเข้าถึงตรง
+    LINE_OA_URL: ''
   };
 
   const liffStatusEl = document.getElementById('liffStatus');
@@ -829,6 +871,25 @@
 
   function gasConfigured(){
     return APP_CONFIG.GAS_URL && !APP_CONFIG.GAS_URL.startsWith('PUT_YOUR');
+  }
+
+  // ---------- LIFF-only access guard ----------
+  // Blocks anyone opening the raw hosted URL directly (i.e. NOT through a
+  // liff.line.me link / inside the LINE app). liff.getContext() is only
+  // non-null when the page was actually launched via the LIFF entry point.
+  function showAccessBlocked(){
+    const el = document.getElementById('accessBlocked');
+    if(!el) return;
+    const oaLink = document.getElementById('accessBlockedOaLink');
+    if(oaLink){
+      if(APP_CONFIG.LINE_OA_URL){
+        oaLink.href = APP_CONFIG.LINE_OA_URL;
+        oaLink.style.display = 'inline-block';
+      } else {
+        oaLink.style.display = 'none';
+      }
+    }
+    el.classList.add('show');
   }
 
   async function gasRequest(params){
@@ -868,12 +929,23 @@
   // Runs the one-time prize draw for the logged-in LINE user (if configured).
   // Safe to call multiple times: the backend only records the very first draw
   // per LINE user, subsequent calls just return that same stored result.
+  // Sends a fresh LINE ID token so the backend can verify the request really
+  // came from a genuine, currently-logged-in LIFF session (see
+  // apps-script-Code.gs verifyIdToken_ / CHANNEL_ID) instead of trusting a
+  // client-supplied userId at face value.
   async function callDrawPrize(){
     if(!gasConfigured() || !liffProfile) return null;
+    let idToken = '';
+    try{
+      if(typeof liff !== 'undefined' && liff.getIDToken) idToken = liff.getIDToken() || '';
+    }catch(err){
+      console.error('liff.getIDToken failed', err);
+    }
     const result = await gasRequest({
       action: 'draw',
       userId: liffProfile.userId,
-      displayName: liffProfile.displayName || ''
+      displayName: liffProfile.displayName || '',
+      idToken: idToken
     });
     if(result && result.ok){
       if(typeof result.cashRemaining === 'number'){
@@ -918,13 +990,23 @@
   // ---------- LIFF init ----------
   async function initLiff(){
     if(typeof liff === 'undefined'){
-      liffStatusEl.textContent = '';
-      await refreshPrizeStatus();
+      // LIFF SDK failed to load at all (e.g. blocked script) — treat as
+      // direct/non-LIFF access and block, since we can't verify the session.
+      showAccessBlocked();
       return;
     }
     try{
       liffStatusEl.textContent = 'LINE ချိတ်ဆက်နေပါသည်...';
       await liff.init({ liffId: APP_CONFIG.LIFF_ID });
+
+      // Reject anyone who opened the page directly (not via the LIFF URL /
+      // LINE app). liff.getContext() is null outside a genuine LIFF launch.
+      const context = liff.getContext ? liff.getContext() : null;
+      if(!context){
+        showAccessBlocked();
+        return;
+      }
+
       if(!liff.isLoggedIn()){
         liff.login();
         return; // page will redirect back after login
